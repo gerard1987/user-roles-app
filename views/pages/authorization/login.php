@@ -1,5 +1,4 @@
-<h1><?= ucfirst($title) ?></h1>
-<div class="login-container">
+<div class="login-box">
     <h2>Login</h2>
     <form action="login.php" method="POST">
         <input type="text" name="username" placeholder="Username" required>

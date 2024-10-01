@@ -7,7 +7,7 @@ class AuthorizationController extends Controller
         parent::__construct();
     }
 
-    public function index() 
+    public function login() 
     {
         $data = [
             'title' => 'Login',
@@ -16,6 +16,6 @@ class AuthorizationController extends Controller
 
         $viewData = new ViewData($data);
         
-        $this->renderView('index', $viewData);
+        $this->renderView('login', $viewData);
     }
 }
