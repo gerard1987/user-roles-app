@@ -12,19 +12,20 @@ class User
 
     public static function create($data) 
     {
-        $db = new PDO('mysql:host=localhost;dbname=article-app;charset=utf8', 'root', '');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db = DataProvider::getInstance()->getDbInstance();
 
         // Prepare the values
-        $name = $data['name'];
-        $price = floatval($data['price']);
+        $username = $data['username'];
+        $password = $data['password'];
+        $role = 'user';
 
         // Prepare the SQL INSERT statement
-        $stmt = $db->prepare('INSERT INTO User (name, price) VALUES (:name, :price)');
+        $stmt = $db->prepare('INSERT INTO users (username, password, role) VALUES (:username, :password, :role)');
 
         // Bind the parameters
-        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-        $stmt->bindParam(':price', $price, PDO::PARAM_STR); // Use PARAM_STR for floats as well
+        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':role', $role, PDO::PARAM_STR);
 
         // Execute the statement
         return $stmt->execute();
@@ -32,7 +33,7 @@ class User
 
     public static function all() 
     {
-        $db = new PDO('mysql:host=localhost;dbname=article-app;charset=utf8', 'root', '');
+        $db = DataProvider::getInstance()->getDbInstance();
        
         $req = $db->query('SELECT * FROM User');
         $User = $req->fetchAll(PDO::FETCH_OBJ);
@@ -40,27 +41,29 @@ class User
         return $User;
     }
 
-    public static function getById($id) 
+    public static function getUser($data) 
     {
-        $db = new PDO('mysql:host=localhost;dbname=article-app;charset=utf8', 'root', '');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db = DataProvider::getInstance()->getDbInstance();
+
+        $username = $data['username'];
+        $password = $data['password'];
         
         // Prepare query
-        $stmt = $db->prepare('SELECT * FROM User WHERE id = :id');
+        $stmt = $db->prepare('SELECT * FROM users WHERE username = :username AND password = :password');
 
         // Bind parameters
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
         $stmt->execute(); 
     
-        $article = $stmt->fetch(PDO::FETCH_OBJ);
+        $user = $stmt->fetch(PDO::FETCH_OBJ);
 
-        return $article;
+        return $user;
     }    
 
     public static function edit($data) 
     {
-        $db = new PDO('mysql:host=localhost;dbname=article-app;charset=utf8', 'root', '');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db = DataProvider::getInstance()->getDbInstance();
     
         $id = intval($data['id']);
         $name = $data['name'];
@@ -84,8 +87,7 @@ class User
     
     public static function delete(int $id) 
     {
-        $db = new PDO('mysql:host=localhost;dbname=article-app;charset=utf8', 'root', '');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db = DataProvider::getInstance()->getDbInstance();
         
         // Prepare query
         $stmt = $db->prepare('DELETE FROM User WHERE id = :id');

@@ -15,13 +15,9 @@ class Router
     const MODELS_FOLDER = 'models';
     const CONTROLLER = 'Controller';
 
-    public function __construct()
+    public function __construct($url)
     {
         $this->root = dirname(__DIR__);
-    }
-
-    public function parseRequestUri($url)
-    {
         $this->url = parse_url($url, PHP_URL_PATH);
         $this->urlSegments = explode('/', trim($url, '/'));
         $this->controllerSegment = $this->urlSegments[0] ?? null;
@@ -29,27 +25,9 @@ class Router
         $this->param = $this->urlSegments[2] ?? null;
     }
 
-    public function route($url) 
+    public function route() 
     {
-        $this->parseRequestUri($url);
-
-        if (!empty($this->controllerSegment))
-        {
-            $this->navigate($this->controllerSegment, $this->action, $this->param);
-        }
-        else 
-        {
-            $this->navigate('AuthorizationController', 'login', null);
-        }
-    }
-
-    public function loadController($controller)
-    {
-        $controllerFile = $this->root . DS . self::CONTROLLERS_FOLDER . DS . $controller;
-        if (file_exists($controllerFile) && class_exists($controller))
-        {
-            require_once "$controller.php";
-        }
+        $this->navigate($this->controllerSegment, $this->action, $this->param);
     }
 
     public function navigate($controller, $action, $param)
@@ -67,6 +45,16 @@ class Router
         header('HTTP/1.0 404 Not Found');
         echo 'Pagina niet gevonden';
         die;
+    }
+
+    public function loadController($controller)
+    {
+        $controllerFile = $this->root . DS . self::CONTROLLERS_FOLDER . DS . $controller . '.php';
+
+        if (file_exists($controllerFile))
+        {
+            require_once "$controllerFile";
+        }
     }
 
     public function parseControllerName($controllerName): string

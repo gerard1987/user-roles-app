@@ -10,11 +10,19 @@ class Controller
     public function __construct()
     {
         $this->root = dirname(__DIR__);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
     }
 
     private function renderHeader()
     {
         require_once($this->root . DIRECTORY_SEPARATOR . $this->viewsFolder . DIRECTORY_SEPARATOR . $this->layoutsFolder . DIRECTORY_SEPARATOR . 'header.php');   
+    }
+
+    private function renderFooter()
+    {
+        require_once($this->root . DIRECTORY_SEPARATOR . $this->viewsFolder . DIRECTORY_SEPARATOR . $this->layoutsFolder . DIRECTORY_SEPARATOR . 'footer.php');   
     }
 
     protected function renderView($view, ViewData $viewData)
@@ -27,6 +35,8 @@ class Controller
             $this->renderHeader();
 
             $viewData->render($fullPath);
+
+            $this->renderFooter();
         }
         else 
         {
@@ -76,6 +86,37 @@ class Controller
 
     
         return $sanitizedData;
+    }
+
+    protected function setsession($data) 
+    {
+        if (!is_array($data)) {
+            throw new InvalidArgumentException('Session data must be an associative array.');
+        }
+
+        // Set each session key-value pair
+        foreach ($data as $key => $value) 
+        {
+            $_SESSION[$key] = $value;
+        }
+    }
+    
+    protected function getsession($key) 
+    {
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
+    }
+
+    protected function clearsession($key) 
+    {
+        if (isset($_SESSION[$key])) {
+            unset($_SESSION[$key]);
+        }
+    }
+
+    protected function destroysession() 
+    {
+        session_unset();
+        session_destroy();
     }
 
     protected function redirect($url)

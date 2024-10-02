@@ -8,12 +8,40 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f0f4fc;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
 }
 
-.login-box {
+header {
+    width: 100%;
+    padding: 15px 30px;
+    background: #020202;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+header nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    list-style: none;
+}
+
+header nav ul li {
+    padding: 15px;
+    margin-right: 10px;
+}
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+header nav ul li a:hover {
+    color: burlywood;
+    text-decoration: none;
+}
+
+.box {
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
