@@ -30,6 +30,10 @@ class Controller
         $controllerFolder = strtolower(str_replace('Controller', '', get_class($this)));
         $fullPath = $this->root . DIRECTORY_SEPARATOR . $this->viewsFolder . DIRECTORY_SEPARATOR . $this->pagesFolder  . DIRECTORY_SEPARATOR . $controllerFolder . DIRECTORY_SEPARATOR . $view . '.php';
 
+        if(empty(Session::getsession('Auth')) && get_class($this) !== 'AuthorizationController' && !in_array($view, ['login', 'register'])){
+            $this->redirect('authorization/login', 302);
+        }
+
         if (file_exists($fullPath)) 
         {
             $this->renderHeader();
@@ -88,42 +92,13 @@ class Controller
         return $sanitizedData;
     }
 
-    protected function setsession($data) 
+    protected function redirect($url, $statusCode = null)
     {
-        if (!is_array($data)) {
-            throw new InvalidArgumentException('Session data must be an associative array.');
-        }
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'];
+        $sanitized_url = $scheme . '://' . $host . '/' . filter_var($url, FILTER_SANITIZE_URL);
 
-        // Set each session key-value pair
-        foreach ($data as $key => $value) 
-        {
-            $_SESSION[$key] = $value;
-        }
-    }
-    
-    protected function getsession($key) 
-    {
-        return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
-    }
-
-    protected function clearsession($key) 
-    {
-        if (isset($_SESSION[$key])) {
-            unset($_SESSION[$key]);
-        }
-    }
-
-    protected function destroysession() 
-    {
-        session_unset();
-        session_destroy();
-    }
-
-    protected function redirect($url)
-    {
-        $sanitized_url = filter_var($url, FILTER_SANITIZE_URL);
-
-        header("Location: $sanitized_url");
+        header("Location: $sanitized_url", true, $statusCode);
         exit();    
     }
 }

@@ -41,6 +41,15 @@ header nav ul li a:hover {
     text-decoration: none;
 }
 
+.row {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 15px;
+    padding: 15px;
+}
+
 .box {
     background-color: #fff;
     padding: 20px;

@@ -22,11 +22,10 @@ class AuthorizationController extends Controller
             $password = $data['password'] ?? throw new Exception('password is required');
 
             $user = User::getUser($data);
-            if ($user){
-                $data = [
-                    'User' => $user
-                ];
-                $this->setsession($data);
+            if ($user)
+            {
+                $data['Auth']['User'] = $user;
+                Session::setsession($data);
 
                 $this->redirect('/home/index');
             }
@@ -42,7 +41,7 @@ class AuthorizationController extends Controller
 
     public function logout() 
     {
-        $this->destroysession();
+        Session::destroysession();
         $this->redirect('/authorization/login');
     }
 

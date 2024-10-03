@@ -65,24 +65,26 @@ class User
     {
         $db = DataProvider::getInstance()->getDbInstance();
     
-        $id = intval($data['id']);
-        $name = $data['name'];
-        $price = floatval($data['price']);
+        $id = intval($data->id);
+        $username = $data->username;
+        $password = $data->password;
+        $role = $data->role;
     
         // Prepare query
-        $stmt = $db->prepare('UPDATE User SET name = :name, price = :price WHERE id = :id');
+        $stmt = $db->prepare('UPDATE users SET username = :username, password = :password, role = :role WHERE id = :id');
         
-        // Bind parameters
+        // Bind the parameters
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->bindParam(':name', $name, PDO::PARAM_STR); // Bind name
-        $stmt->bindParam(':price', $price, PDO::PARAM_STR); // Bind price
+        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':role', $role, PDO::PARAM_STR);
     
         $succes = $stmt->execute();
         if (!$succes){
-            throw new Exception("Couldnt update article");
+            throw new Exception("Couldnt update user");
         }
 
-        return self::getById($id) ?? null;
+        return true;
     }
     
     public static function delete(int $id) 

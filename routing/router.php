@@ -32,8 +32,8 @@ class Router
 
     public function navigate($controller, $action, $param)
     {
-        $cleanedControllerName = $this->parseControllerName($this->controllerSegment);
-        $cleanedActionName = $this->parseActionName($this->action) ?? null;
+        $cleanedControllerName = $this->parseControllerName($controller);
+        $cleanedActionName = $this->parseActionName($action) ?? null;
 
         $this->loadController($cleanedControllerName);
 
@@ -65,5 +65,13 @@ class Router
     public function parseActionName($action): string
     {
         return strtolower($action);
-    }    
+    }
+
+    protected function redirect($url)
+    {
+        $sanitized_url = filter_var($url, FILTER_SANITIZE_URL);
+
+        header("Location: $sanitized_url");
+        exit();    
+    }
 }
