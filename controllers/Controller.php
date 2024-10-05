@@ -7,12 +7,13 @@ class Controller
     private $layoutsFolder = 'layout';
     private $pagesFolder = 'pages';
 
+    private $controller;
+    private $calledMethod;
+
     public function __construct()
     {
         $this->root = dirname(__DIR__);
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->controller = get_class($this);
     }
 
     private function renderHeader()
@@ -27,12 +28,9 @@ class Controller
 
     protected function renderView($view, ViewData $viewData)
     {
+        $controller = get_class($this);
         $controllerFolder = strtolower(str_replace('Controller', '', get_class($this)));
         $fullPath = $this->root . DIRECTORY_SEPARATOR . $this->viewsFolder . DIRECTORY_SEPARATOR . $this->pagesFolder  . DIRECTORY_SEPARATOR . $controllerFolder . DIRECTORY_SEPARATOR . $view . '.php';
-
-        if(empty(Session::getsession('Auth')) && get_class($this) !== 'AuthorizationController' && !in_array($view, ['login', 'register'])){
-            $this->redirect('authorization/login', 302);
-        }
 
         if (file_exists($fullPath)) 
         {

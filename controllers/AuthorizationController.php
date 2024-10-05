@@ -65,4 +65,15 @@ class AuthorizationController extends Controller
         
         $this->renderView('register', $viewData);
     }
+
+    public function unauthorized() 
+    {
+        $data = [
+            'title' => 'Register',
+        ];
+
+        $viewData = new ViewData($data);
+        
+        $this->renderView('unauthorized', $viewData);
+    }
 }

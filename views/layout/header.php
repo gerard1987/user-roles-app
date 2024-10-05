@@ -12,7 +12,12 @@
     <nav>
         <ul>
             <li><a href="/home/index">Dashboard</a></li>
+            <li><a href="/home/users">Users</a></li>
+            <?php if (empty(Auth::getLoggedInUser())): ?>
+            <li><a href="/authorization/login">Login</a></li>
+            <?php else: ?>
             <li><a href="/authorization/logout">Logout</a></li>
+            <?php endif; ?>
         </ul>
     </nav>
 </header>

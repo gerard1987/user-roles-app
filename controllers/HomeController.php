@@ -7,19 +7,37 @@ class HomeController extends Controller
         parent::__construct();
     }
 
+    #[AuthorizedAttribute(['user', 'admin'])]
     public function index() 
     {
         $data = [
             'title' => 'Home',
             'content' => 'Home',
-            'userData' => $userData = Session::getsession('Auth')['User']
+            'userData' => $userData = Session::getsession('Auth')['User'] ?? null
         ];
 
         $viewData = new ViewData($data);
         
         $this->renderView('index', $viewData);
     }
+
+    #[AuthorizedAttribute(['admin'])]
+    public function users() 
+    {
+        $allUsers = User::all();
+
+        $data = [
+            'title' => 'Users',
+            'content' => $allUsers,
+            'userData' => $userData = Session::getsession('Auth')['User'] ?? null
+        ];
+
+        $viewData = new ViewData($data);
+        
+        $this->renderView('users', $viewData);
+    }    
     
+    #[AuthorizedAttribute(['admin'])]
     public function create_user() 
     {
         if (!empty($_POST))
@@ -33,6 +51,7 @@ class HomeController extends Controller
         }
     }
     
+    #[AuthorizedAttribute(['user'])]
     public function reset_password() 
     {
         $data = [

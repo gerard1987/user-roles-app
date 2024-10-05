@@ -35,10 +35,8 @@ class User
     {
         $db = DataProvider::getInstance()->getDbInstance();
        
-        $req = $db->query('SELECT * FROM User');
-        $User = $req->fetchAll(PDO::FETCH_OBJ);
-
-        return $User;
+        $req = $db->query('SELECT * FROM users');
+        return $req->fetchAll(PDO::FETCH_OBJ) ?? null;
     }
 
     public static function getUser($data) 

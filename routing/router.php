@@ -32,19 +32,62 @@ class Router
 
     public function navigate($controller, $action, $param)
     {
-        $cleanedControllerName = $this->parseControllerName($controller);
+        $cleanedControllerName = $this->parseControllerName($controller) ?? null;
         $cleanedActionName = $this->parseActionName($action) ?? null;
+
+        if (empty($cleanedControllerName)){
+            $this->redirect('home/index');
+        }
 
         $this->loadController($cleanedControllerName);
 
-        if (method_exists($cleanedControllerName,$cleanedActionName)){
-            $c = new $cleanedControllerName();
-            $c->{$cleanedActionName}($param);
+        if (method_exists($cleanedControllerName,$cleanedActionName))
+        {
+            if ($this->isAuthorizedForRoute($cleanedControllerName, $cleanedActionName))
+            {
+                $c = new $cleanedControllerName();
+                $c->{$cleanedActionName}($param);
+            }
+            elseif(!empty(Auth::getLoggedInUser()))
+            {
+                $this->redirect('authorization/unauthorized', 302);
+            }
+            else 
+            {
+                $this->redirect('authorization/login', 302);
+            }
         }
 
         header('HTTP/1.0 404 Not Found');
         echo 'Pagina niet gevonden';
         die;
+    }
+
+    private function isAuthorizedForRoute($controller, $view)
+    {
+        $authorized = false;
+
+        $reflectionClass = new ReflectionClass($controller);
+        $attributes = $reflectionClass->getMethod($view)->getAttributes(AuthorizedAttribute::class);
+
+        // Action has attributes, check role
+        if (!empty($attributes))
+        {
+            foreach ($attributes as $attribute) 
+            {
+                $routeInstance = $attribute->newInstance();
+                $user = Auth::getLoggedInUser() ?? null;
+
+                $authorized = empty($user) ? false : ( in_array(strtolower($user->role), $routeInstance->roles) );
+            }
+        }
+        else 
+        {
+            // No attributes on route, means we let user pass
+            $authorized = true;
+        }
+
+        return $authorized;
     }
 
     public function loadController($controller)
@@ -59,7 +102,7 @@ class Router
 
     public function parseControllerName($controllerName): string
     {
-        return ucfirst(strtolower($controllerName)) . self::CONTROLLER;
+        return !empty($controllerName) ? ucfirst(strtolower($controllerName)) . self::CONTROLLER : '';
     }
 
     public function parseActionName($action): string
@@ -69,8 +112,12 @@ class Router
 
     protected function redirect($url)
     {
-        $sanitized_url = filter_var($url, FILTER_SANITIZE_URL);
-
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'];
+    
+        $sanitized_url = $scheme . '://' . $host . '/' . ltrim(filter_var($url, FILTER_SANITIZE_URL), '/');
+    
+        // Perform the redirect
         header("Location: $sanitized_url");
         exit();    
     }
