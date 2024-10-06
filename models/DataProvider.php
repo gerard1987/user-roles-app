@@ -19,8 +19,15 @@ class DataProvider
 
     private function __construct()
     {
-        $dsn = 'mysql:host='.$this->host.';dbname='.$this->dbName.';charset='.$this->charset.'';
+        // First initialize connection to host
+        $dsn = 'mysql:host=' . $this->host . ';charset=' . $this->charset;
         $this->dbInstance = new PDO($dsn, $this->user, $this->pass, $this->options);
+
+        $this->createDatabaseIfNotExists();
+
+        // Now we can operate on the db
+        $dsnWithDb = 'mysql:host='.$this->host.';dbname='.$this->dbName.';charset='.$this->charset.'';
+        $this->dbInstance = new PDO($dsnWithDb, $this->user, $this->pass, $this->options);
 
         $this->initialize();
     }
@@ -40,24 +47,17 @@ class DataProvider
 
     private function initialize()
     {
-        $this->createDatabaseIfNotExists();
         $this->createUserTableIfNotExists();
         $this->createAdminIfNotExists();
+        $this->seedUsersIfNotExists();
     }
 
     private function createDatabaseIfNotExists() 
     {
         try
         {
-            // Check if the database exists by executing a simple SQL query
-            $stmt = $this->dbInstance->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{$this->dbName}'");
-
-            if ($stmt->rowCount() == 0) 
-            {
-                // Database does not exist, create it
-                $sql = "CREATE DATABASE {$this->dbName} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci";
-                $this->dbInstance->exec($sql);
-            }
+            $sql = "CREATE DATABASE IF NOT EXISTS `{$this->dbName}`";
+            $this->dbInstance->exec($sql);
         } 
         catch (PDOException $e) 
         {
@@ -89,6 +89,29 @@ class DataProvider
         try 
         {
             $sql = "INSERT IGNORE INTO users (username, password, role) VALUES ('admin', 'password123', 'admin');";
+
+            $this->dbInstance->exec($sql);
+        } 
+        catch (PDOException $e) {
+            echo "Error inserting admin user : " . $e->getMessage();
+        }
+    }
+
+    private function seedUsersIfNotExists()
+    {  
+        try 
+        {
+            $sql = "INSERT IGNORE INTO `users` (`username`, `password`, `role`) VALUES
+            ('Emily', 'password', 'user'),
+            ('Michael', 'mypassword', 'user'),
+            ('Sarah', '123456', 'user'),
+            ('David', 'qwerty', 'user'),
+            ('Laura', 'letmein', 'user'),
+            ('James', 'abc123', 'user'),
+            ('Jessica', 'password1', 'user'),
+            ('Daniel', 'welcome', 'user'),
+            ('Rachel', 'pass1234', 'user'),
+            ('John', 'secret', 'user');";
 
             $this->dbInstance->exec($sql);
         } 
