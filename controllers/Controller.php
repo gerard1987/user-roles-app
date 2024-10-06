@@ -89,14 +89,4 @@ class Controller
     
         return $sanitizedData;
     }
-
-    protected function redirect($url, $statusCode = null)
-    {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'];
-        $sanitized_url = $scheme . '://' . $host . '/' . filter_var($url, FILTER_SANITIZE_URL);
-
-        header("Location: $sanitized_url", true, $statusCode);
-        exit();    
-    }
 }

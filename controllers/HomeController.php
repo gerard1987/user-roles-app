@@ -46,12 +46,12 @@ class HomeController extends Controller
 
             $succes = User::create($data);
             if ($succes){
-                $this->redirect('/home/index');
+                Router::redirect('/home/index');
             }
         }
     }
     
-    #[AuthorizedAttribute(['user'])]
+    #[AuthorizedAttribute(['user', 'admin'])]
     public function reset_password() 
     {
         $data = [
@@ -67,7 +67,7 @@ class HomeController extends Controller
 
             $succes = User::edit($user);
             if ($succes){
-                $this->redirect('/home/index');
+                Router::redirect('/home/index');
             }
         }
 

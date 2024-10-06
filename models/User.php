@@ -90,7 +90,7 @@ class User
         $db = DataProvider::getInstance()->getDbInstance();
         
         // Prepare query
-        $stmt = $db->prepare('DELETE FROM User WHERE id = :id');
+        $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         return $stmt->execute();

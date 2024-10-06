@@ -80,7 +80,6 @@ class DataProvider
             $this->dbInstance->exec($sql);
         } 
         catch (PDOException $e) {
-            // Handle the error if there's a problem
             echo "Error creating table: " . $e->getMessage();
         }
     }
@@ -94,7 +93,6 @@ class DataProvider
             $this->dbInstance->exec($sql);
         } 
         catch (PDOException $e) {
-            // Handle the error if there's a problem
             echo "Error inserting admin user : " . $e->getMessage();
         }
     }

@@ -11,7 +11,7 @@ class AuthorizationController extends Controller
     {
         $data = [
             'title' => 'Login',
-            'content' => 'Login'
+            'content' => null
         ];
 
         if (!empty($_POST))
@@ -27,10 +27,11 @@ class AuthorizationController extends Controller
                 $data['Auth']['User'] = $user;
                 Session::setsession($data);
 
-                $this->redirect('/home/index');
+                Router::redirect('/home/index');
             }
-            else {
-                $this->redirect('/home/index');
+            else 
+            {
+                $data['content']['message'] = 'Incorrect username and password combination';
             }
         }
 
@@ -42,7 +43,7 @@ class AuthorizationController extends Controller
     public function logout() 
     {
         Session::destroysession();
-        $this->redirect('/authorization/login');
+        Router::redirect('/authorization/login');
     }
 
     public function register() 
@@ -57,7 +58,7 @@ class AuthorizationController extends Controller
 
             $succes = User::create($data);
             if ($succes){
-                $this->redirect('/home/index');
+                Router::redirect('/home/index');
             }
         }
 

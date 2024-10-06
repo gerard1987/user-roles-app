@@ -14,11 +14,12 @@
         session_start();
     }
 
-    DataProvider::getInstance();
-
     define('DS', DIRECTORY_SEPARATOR);
+    define('BASE', __DIR__);
 
-    $router = new Router($_SERVER['REQUEST_URI']);
-    $router->route();
-
+    // Initialize the data context once
+    DataProvider::getInstance();
+    
+    // Start routing
+    Router::start();
 ?>

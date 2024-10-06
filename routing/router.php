@@ -2,59 +2,55 @@
 
 class Router 
 {
-    private $url;
-    private $urlSegments;
-    private $controllerSegment;
-    private $action;
-    private $param;
+    private static $url;
+    private static $urlSegments;
+    private static $controllerSegment;
+    private static $action;
+    private static $param;
 
-    private $root;
+    private static $root;
 
     const CONTROLLERS_FOLDER = 'controllers';
     const VIEWS_FOLDER = 'views';
     const MODELS_FOLDER = 'models';
     const CONTROLLER = 'Controller';
 
-    public function __construct($url)
+    public static function start() 
     {
-        $this->root = dirname(__DIR__);
-        $this->url = parse_url($url, PHP_URL_PATH);
-        $this->urlSegments = explode('/', trim($url, '/'));
-        $this->controllerSegment = $this->urlSegments[0] ?? null;
-        $this->action = $this->urlSegments[1] ?? null;
-        $this->param = $this->urlSegments[2] ?? null;
+        self::$url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        self::$urlSegments = explode('/', trim(self::$url, '/'));
+        self::$controllerSegment = self::$urlSegments[0] ?? null;
+        self::$action = self::$urlSegments[1] ?? null;
+        self::$param = self::$urlSegments[2] ?? null;
+
+        self::navigate(self::$controllerSegment, self::$action, self::$param);
     }
 
-    public function route() 
+    private static function navigate($controller, $action, $param)
     {
-        $this->navigate($this->controllerSegment, $this->action, $this->param);
-    }
-
-    public function navigate($controller, $action, $param)
-    {
-        $cleanedControllerName = $this->parseControllerName($controller) ?? null;
-        $cleanedActionName = $this->parseActionName($action) ?? null;
+        $cleanedControllerName = self::parseControllerName($controller) ?? null;
+        $cleanedActionName = self::parseActionName($action) ?? null;
 
         if (empty($cleanedControllerName)){
-            $this->redirect('home/index');
+            self::redirect('home/index');
         }
 
-        $this->loadController($cleanedControllerName);
+        self::loadController($cleanedControllerName);
 
         if (method_exists($cleanedControllerName,$cleanedActionName))
         {
-            if ($this->isAuthorizedForRoute($cleanedControllerName, $cleanedActionName))
+            if (self::isAuthorizedForRoute($cleanedControllerName, $cleanedActionName))
             {
                 $c = new $cleanedControllerName();
                 $c->{$cleanedActionName}($param);
             }
             elseif(!empty(Auth::getLoggedInUser()))
             {
-                $this->redirect('authorization/unauthorized', 302);
+                self::redirect('authorization/unauthorized', 302);
             }
             else 
             {
-                $this->redirect('authorization/login', 302);
+                self::redirect('authorization/login', 302);
             }
         }
 
@@ -63,7 +59,7 @@ class Router
         die;
     }
 
-    private function isAuthorizedForRoute($controller, $view)
+    private static function isAuthorizedForRoute($controller, $view)
     {
         $authorized = false;
 
@@ -83,16 +79,16 @@ class Router
         }
         else 
         {
-            // No attributes on route, means we let user pass
+            // No attributes on action, means its publicly accesible
             $authorized = true;
         }
 
         return $authorized;
     }
 
-    public function loadController($controller)
+    private static function loadController($controller)
     {
-        $controllerFile = $this->root . DS . self::CONTROLLERS_FOLDER . DS . $controller . '.php';
+        $controllerFile = BASE . DS . self::CONTROLLERS_FOLDER . DS . $controller . '.php';
 
         if (file_exists($controllerFile))
         {
@@ -100,17 +96,17 @@ class Router
         }
     }
 
-    public function parseControllerName($controllerName): string
+    private static function parseControllerName($controllerName): string
     {
         return !empty($controllerName) ? ucfirst(strtolower($controllerName)) . self::CONTROLLER : '';
     }
 
-    public function parseActionName($action): string
+    private static function parseActionName($action): string
     {
         return strtolower($action);
     }
 
-    protected function redirect($url)
+    public static function redirect($url)
     {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];

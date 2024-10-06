@@ -4,8 +4,9 @@
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
         <input type="submit" value="Login">
-        <div class="error-message" id="error-message"></div>
     </form>
 
     <p><a href="/authorization/register">Or create a account here!</a></p>
+    </br>
+    <p class="error-message"><?= $content['message'] ?></p>
 </div>
