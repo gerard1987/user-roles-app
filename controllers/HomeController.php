@@ -59,6 +59,10 @@ class HomeController extends Controller
             if (!empty($_POST))
             {
                 $data = $this->sanitizePostData($_POST);
+
+                if(empty($data['username'])){ throw new InvalidArgumentException('username is required');}
+                if(empty($data['password'])){ throw new InvalidArgumentException('password is required');}
+
                 $succes = User::create($data);
 
                 $data['content']['message'] = $succes ? 'User created' : 'Could not create user';
@@ -67,6 +71,10 @@ class HomeController extends Controller
             {
                 $data['content']['message'] = 'Provide username and password';
             }
+        }
+        catch(InvalidArgumentException $ex)
+        {
+            $data['content']['message'] = $ex->getMessage();
         }
         catch (Exception $ex)
         {
@@ -92,6 +100,8 @@ class HomeController extends Controller
             {
                 $newPassword = $this->sanitizePostData($_POST)['new_password'] ?? null;
                 
+                if(empty($newPassword)){ throw new InvalidArgumentException('password is required');}
+                
                 $user = Auth::getLoggedInUser();
                 $user->password = $newPassword;
     
@@ -99,6 +109,10 @@ class HomeController extends Controller
 
                 $data['content']['message'] = $succes ? 'Password reset' : 'Could not reset password';
             }
+        }
+        catch(InvalidArgumentException $ex)
+        {
+            $data['content']['message'] = $ex->getMessage();
         }
         catch(Exception $ex)
         {

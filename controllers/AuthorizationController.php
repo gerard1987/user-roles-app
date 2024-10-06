@@ -81,6 +81,10 @@ class AuthorizationController extends Controller
                 }
             }
         }
+        catch(InvalidArgumentException $ex)
+        {
+            $data['content']['message'] = $ex->getMessage();
+        }
         catch (Exception $ex)
         {
             $data['content']['message'] = 'Internal server error';
