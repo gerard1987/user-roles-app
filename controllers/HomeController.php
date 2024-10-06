@@ -66,6 +66,8 @@ class HomeController extends Controller
                 $succes = User::create($data);
 
                 $data['content']['message'] = $succes ? 'User created' : 'Could not create user';
+                $data['content'] = User::all();
+                $data['userData'] = Session::getsession('Auth')['User'] ?? null;
             }
             else 
             {
@@ -99,7 +101,7 @@ class HomeController extends Controller
             if (!empty($_POST))
             {
                 $newPassword = $this->sanitizePostData($_POST)['new_password'] ?? null;
-                
+
                 if(empty($newPassword)){ throw new InvalidArgumentException('password is required');}
                 
                 $user = Auth::getLoggedInUser();
