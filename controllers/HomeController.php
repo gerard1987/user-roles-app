@@ -10,70 +10,103 @@ class HomeController extends Controller
     #[AuthorizedAttribute(['user', 'admin'])]
     public function index() 
     {
-        $data = [
-            'title' => 'Home',
-            'content' => 'Home',
-            'userData' => $userData = Session::getsession('Auth')['User'] ?? null
-        ];
+        try 
+        {
+            $userData = Session::getsession('Auth')['User'] ?? null;
+            $data = [
+                'title' => 'Home',
+                'content' => null,
+                'userData' => $userData
+            ];
+        }
+        catch (Exception $ex)
+        {
+            $data['content']['message'] = 'Internal server error';
+        }
 
-        $viewData = new ViewData($data);
-        
+        $viewData = new ViewData($data); 
         $this->renderView('index', $viewData);
     }
 
     #[AuthorizedAttribute(['admin'])]
     public function users() 
     {
-        $allUsers = User::all();
+        try 
+        {
+            $allUsers = User::all();
+            $userData = Session::getsession('Auth')['User'] ?? null;
 
-        $data = [
-            'title' => 'Users',
-            'content' => $allUsers,
-            'userData' => $userData = Session::getsession('Auth')['User'] ?? null
-        ];
+            $data = [
+                'title' => 'Users',
+                'content' => $allUsers,
+                'userData' => $userData
+            ];
+        }
+        catch (Exception $ex)
+        {
+            $data['content']['message'] = 'Internal server error';
+        }
 
         $viewData = new ViewData($data);
-        
         $this->renderView('users', $viewData);
     }    
     
     #[AuthorizedAttribute(['admin'])]
     public function create_user() 
     {
-        if (!empty($_POST))
+        try 
         {
-            $data = $this->sanitizePostData($_POST);
+            if (!empty($_POST))
+            {
+                $data = $this->sanitizePostData($_POST);
+                $succes = User::create($data);
 
-            $succes = User::create($data);
-            if ($succes){
-                Router::redirect('/home/index');
+                $data['content']['message'] = $succes ? 'User created' : 'Could not create user';
+            }
+            else 
+            {
+                $data['content']['message'] = 'Provide username and password';
             }
         }
+        catch (Exception $ex)
+        {
+            $data['content']['message'] = 'Internal server error';
+        }
+
+        $viewData = new ViewData($data);
+        $this->renderView('users', $viewData);
     }
     
     #[AuthorizedAttribute(['user', 'admin'])]
     public function reset_password() 
     {
-        $data = [
-            'title' => 'Reset password',
-        ];
-
-        if (!empty($_POST))
+        try 
         {
-            $newPassword = $this->sanitizePostData($_POST)['new_password'] ?? null;
-            
-            $user = Auth::getLoggedInUser();
-            $user->password = $newPassword;
+            $userData = Session::getsession('Auth')['User'] ?? null;
+            $data = [
+                'title' => 'Reset password',
+                'userData' => $userData
+            ];
+    
+            if (!empty($_POST))
+            {
+                $newPassword = $this->sanitizePostData($_POST)['new_password'] ?? null;
+                
+                $user = Auth::getLoggedInUser();
+                $user->password = $newPassword;
+    
+                $succes = User::edit($user);
 
-            $succes = User::edit($user);
-            if ($succes){
-                Router::redirect('/home/index');
+                $data['content']['message'] = $succes ? 'Password reset' : 'Could not reset password';
             }
+        }
+        catch(Exception $ex)
+        {
+            $data['content']['message'] = 'Internal server error';
         }
 
         $viewData = new ViewData($data);
-        
-        $this->renderView('register', $viewData);
+        $this->renderView('index', $viewData);
     }
 
 }

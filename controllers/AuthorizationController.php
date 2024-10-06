@@ -10,29 +10,39 @@ class AuthorizationController extends Controller
     public function login() 
     {
         $data = [
-            'title' => 'Login',
             'content' => null
         ];
 
-        if (!empty($_POST))
+        try 
         {
-            $data = $this->sanitizePostData($_POST);
-
-            $username = $data['username'] ?? throw new Exception('username is required');
-            $password = $data['password'] ?? throw new Exception('password is required');
-
-            $user = User::getUser($data);
-            if ($user)
+            if (!empty($_POST))
             {
-                $data['Auth']['User'] = $user;
-                Session::setsession($data);
-
-                Router::redirect('/home/index');
+                $data = $this->sanitizePostData($_POST);
+    
+                if(empty($data['username'])){ throw new InvalidArgumentException('username is required');}
+                if(empty($data['password'])){ throw new InvalidArgumentException('password is required');}
+    
+                $user = User::getUser($data);
+                if ($user)
+                {
+                    $data['Auth']['User'] = $user;
+                    Session::setsession($data);
+    
+                    Router::redirect('/home/index');
+                }
+                else 
+                {
+                    $data['content']['message'] = 'Incorrect username and password combination';
+                }
             }
-            else 
-            {
-                $data['content']['message'] = 'Incorrect username and password combination';
-            }
+        }
+        catch(InvalidArgumentException $ex)
+        {
+            $data['content']['message'] = $ex->getMessage();
+        }
+        catch (Exception $ex)
+        {
+            $data['content']['message'] = 'Internal server error';
         }
 
         $viewData = new ViewData($data);
@@ -49,28 +59,41 @@ class AuthorizationController extends Controller
     public function register() 
     {
         $data = [
-            'title' => 'Register',
+            'content' => null
         ];
-
-        if (!empty($_POST))
+        
+        try 
         {
-            $data = $this->sanitizePostData($_POST);
+            if (!empty($_POST))
+            {
+                $data = $this->sanitizePostData($_POST);
 
-            $succes = User::create($data);
-            if ($succes){
-                Router::redirect('/home/index');
+                if(empty($data['username'])){ throw new InvalidArgumentException('username is required');}
+                if(empty($data['password'])){ throw new InvalidArgumentException('password is required');}
+    
+                $succes = User::create($data);
+                if ($succes){
+                    Router::redirect('/home/index');
+                }
+                else 
+                {
+                    $data['content']['message'] = 'Could not create a user, please try again';
+                }
             }
         }
+        catch (Exception $ex)
+        {
+            $data['content']['message'] = 'Internal server error';
+        }
 
-        $viewData = new ViewData($data);
-        
-        $this->renderView('register', $viewData);
+        $viewData = new ViewData($data);  
+        $this->renderView('register', $viewData);   
     }
 
     public function unauthorized() 
     {
         $data = [
-            'title' => 'Register',
+            'title' => 'unauthorized',
         ];
 
         $viewData = new ViewData($data);

@@ -43,6 +43,7 @@ class User
     {
         $db = DataProvider::getInstance()->getDbInstance();
 
+        // Prepare the values
         $username = $data['username'];
         $password = $data['password'];
         
@@ -63,6 +64,7 @@ class User
     {
         $db = DataProvider::getInstance()->getDbInstance();
     
+        // Prepare the values
         $id = intval($data->id);
         $username = $data->username;
         $password = $data->password;

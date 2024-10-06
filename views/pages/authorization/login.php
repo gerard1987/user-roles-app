@@ -8,5 +8,5 @@
 
     <p><a href="/authorization/register">Or create a account here!</a></p>
     </br>
-    <p class="error-message"><?= $content['message'] ?></p>
+    <p class="error-message-<?= !empty($content['message']) ? 'active' : '' ?>"><?= $content['message'] ?? null; ?></p>
 </div>

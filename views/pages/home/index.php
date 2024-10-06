@@ -1,5 +1,9 @@
-<h1>Hallo, <?= $userData->username; ?></h1>
-
+<div class="row">
+    <div class="box">    
+        <h1>Hallo, <?= $userData->username; ?></h1>
+        <p><i>Role: <?= $userData->role; ?></i></p>
+    </div>
+</div>
 <div class="row">
     <div class="box">
         <!-- User Update Form -->
@@ -13,5 +17,7 @@
 
             <input type="submit" value="Edit">
         </form>
+
+        <p class="error-message-<?= !empty($content['message']) ? 'active' : '' ?>"><?= $content['message'] ?? null; ?></p>
     </div>
 </div>

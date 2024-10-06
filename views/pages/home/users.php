@@ -1,18 +1,18 @@
 <div class="row">
     <div class="box">
-            <!-- Users overview -->
-            <h2>Users</h2>
-            <br>
-            <table style="width: 100%; text-align: left;">
-                <th>Username</th>
-                <th>Role</th>
-                    <?php foreach($content as $k => $user): ?>
-                        <tr>
-                            <td><?= $user->username; ?></td>
-                            <td><?= $user->role; ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-            </table>
+        <!-- Users overview -->
+        <h2>Users</h2>
+        <br>
+        <table style="width: 100%; text-align: left;">
+            <th>Username</th>
+            <th>Role</th>
+                <?php foreach($content as $k => $user): ?>
+                    <tr>
+                        <td><?= $user->username; ?></td>
+                        <td><?= $user->role; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+        </table>
     </div>
 </div>
 <div class="row">
@@ -28,5 +28,7 @@
 
             <input type="submit" value="Create">
         </form>
+
+        <p class="error-message-<?= !empty($content['message']) ? 'active' : '' ?>"><?= $content['message'] ?? null; ?></p>
     </div>
 </div>
